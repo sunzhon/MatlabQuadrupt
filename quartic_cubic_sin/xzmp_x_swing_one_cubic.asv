@@ -1,0 +1,167 @@
+clear all;clc
+g=9.8;h=0.86;
+T=1;beta=0.1;N=1000;D=0.6;
+T1=T*(1/2-beta/2);T2=T1+T*beta;T3=T-T*beta/2;
+t0=T*beta/2;t00=T*(1/2-beta);
+t1=t0+T/N:T/N:T1;
+t2=T1+T/N:T/N:T2;
+t3=T2+T/N:T/N:T3;
+xzmp0=0;S=D/2;xzmp1=xzmp0+S;H=0.08;
+Zm0=0;Xm0=0;
+% Xzmp轨迹规划
+A=[ 1,   0,          0,                    0         ;    
+    1,   t2(end)-T1,    (t2(end)-T1)^2,             (t2(end)-T1)^3   ;          
+    0,   1,              0,                 0        ;
+    0,   1,          2*(t2(end)-T1),            3*(t2(end)-T1)^2   ];
+C=[xzmp0 xzmp1 0 0]';
+B=inv(A)*C;
+a0=round(10*B(1))/10;
+a1=round(10*B(2))/10;
+a2=round(10*B(3))/10;
+a3=round(10*B(4))/10;
+
+Xzmp1=xzmp0;
+Xzmp2=a0+a1*(t2-T1)+a2*(t2-T1).^2+a3*(t2-T1).^3;
+Xzmp3=xzmp1;
+
+% Xm轨迹规划
+% syms c b0 b1 b2 b3 T11;
+% xm1=dsolve('D2x=c*(x-Xzmp1)');
+% xm1=subs(xm1,{c},{g/h});
+% % xm2=dsolve('D2x=c*(x-(b0+b1*(t2-T11)+b2*(t2-T11)^2+b3*(t2-T11)^3))','t2');
+% % xm2=subs(xm2,{c,b0,b1,b2,b3,T11},{g/h,a0,a1,a2,a3,T1});
+% xm2=dsolve('D2x=c*(x-(b0+b1*t+b2*t^2+b3*t^3))');
+% xm2=subs(xm2,{c,b0,b1,b2,b3},{g/h,a0,a1,a2,a3});
+% xm3=dsolve('D2x=c*(x-Xzmp3)');
+% xm3=subs(xm3,{c},{g/h});
+
+c=g/h;
+E=[exp((c)^(1/2)*(T1-t0)),                     exp(-(c)^(1/2)*(T1-t0)),           -1,                      -1,                                0,                  0;
+  (c)^(1/2)*exp((c)^(1/2)*(T1-t0)),  -(c)^(1/2)*exp(-(c)^(1/2)*(T1-t0)),    -(c)^(1/2),                (c)^(1/2),                             0,                  0;
+              0   ,                                         0,           exp((c)^(1/2)*(T2-T1)),   exp(-(c)^(1/2)*(T2-T1)),                   -1,                  -1;
+              0    ,                             0  ,         (c)^(1/2)*exp((c)^(1/2)*(T2-T1)),   -(c)^(1/2)*exp(-(c)^(1/2)*(T2-T1)),       -(c)^(1/2),          (c)^(1/2);
+  exp((c)^(1/2)*(T1-t0)),             exp(-(c)^(1/2)*(T1-t0)) ,                   0 ,                       0 ,              -exp((c)^(1/2)*(T3-T2)) ,   -exp(-(c)^(1/2)*(T3-T2));
+             0    ,                            0  ,                     -(c)^(1/2) ,     (c)^(1/2) ,     (c)^(1/2)*exp((c)^(1/2)*(T3-T2)),     -(c)^(1/2)*exp(-(c)^(1/2)*(T3-T2))  ];
+F=[180/c-xzmp0 , -3600/c , xzmp1+600*(T2-T1)^3-90*(T2-T1)^2+3600*(T2-T1)/c-180/c , 1800*(T2-T1)^2-180*(T2-T1)+3600/c ,0 , -3600/c]';
+G=inv(E)*F;
+C1=G(1);
+C2=G(2);
+C3=G(3);
+C4=G(4);
+C5=G(5);
+C6=G(6);
+
+Xm1=Xzmp1+C1*exp((c)^(1/2)*(t1-t0))+C2*exp(-(c)^(1/2)*(t1-t0));
+Xm2=C3*exp((c)^(1/2)*(t2-T1))+C4*exp(-(c)^(1/2)*(t2-T1))-600*(t2-T1).^3+90*(t2-T1).^2-(3600*(t2-T1))/c+180/c;
+Xm3=Xzmp3+C5*exp((c)^(1/2)*(t3-T2))+C6*exp(-(c)^(1/2)*(t3-T2));
+Xm=[Xm1,Xm2,Xm3];
+Xzmp=[Xzmp1*ones(1,length(t1)),Xzmp2,Xzmp3*ones(1,length(t3))];
+t=[t1,t2,t3];
+
+Velo_Xm=[diff(Xm),(Xm2(1)+S-Xm3(end))]/(T/N);
+
+pp_Xzmp=spline(t,Xzmp);
+dpp_Xzmp=fnder(pp_Xzmp);
+pp_Xm=spline(t,Xm);
+dpp_Xm=fnder(pp_Xm);
+
+% 样条函数可视化
+% fnplt(pp_Xm,'b-')
+% hold on
+% fnplt(dpp_Xm,'m:')
+% fnplt(pp_Xzmp,'r--')
+% hold off 
+% legend('Xm','X''_m','Xzmp')
+
+% 摆动相规划_三次多项式(有问题)
+O=[     0,      0,      H,      0,      0,      0,      0,      0;
+        0,      0,      0,      0,      0,      S,      0,      0;
+        H,  H*t00, H*t00^2, H*t00^3,    0,      0,      0,      0;
+        0,      0,      0,      0,    S,  S*t00,  S*t00^2,  S*t00^3;
+        0,    H,  2*H*t00,  3*H*t00^2,  0,      0,      0,      0;
+        0,      0,      0,      0,     0,      S,  2*S*t00, 3*S*t00^2;
+      H, H*(t00/2), H*(t00/2)^2, H*(t00/2)^3,    0,   0,    0,   0;
+        0,      0,      0,     0,     S, S*(t00/2), S*(t00/2)^2, S*(t00/2)^3 ];
+P=[ 0,  fnval(dpp_Xm,0.05), -Zm0, S-Xm0, 0, fnval(dpp_Xm,0.95), H-Zm0, S/2-Xm0]';
+Q=inv(O)*P;
+b10=Q(1);
+b11=Q(2);
+b12=Q(3);
+b13=Q(4);
+b20=Q(5);
+b21=Q(6);
+b22=Q(7);
+b23=Q(8);
+xm4=Xm0+S*(b20+b21*(t3-T2)+b22*(t3-T2).^2+b23*(t3-T2).^3);
+zm4=Zm0+H*(b10+b11*(t3-T2)+b12*(t3-T2).^2+b13*(t3-T2).^3);
+
+set(0,'defaultfigurecolor','w')
+
+% plot(t3,zm4,'r')
+% hold on
+% plot(t3,xm4,'b')
+% plot(xm4,zm4,'--r')
+
+% Xm三段曲线
+% plot(t1,Xm1,'r')
+% hold on
+% plot(t2,Xm2,'b')
+% hold on
+% plot(t3,Xm3,'.r')
+
+% Xzmp不加双支撑曲线1(另加半周期)
+% plot([t1,t2,t3,t2+T/2,t3+T/2],[Xzmp1*ones(1,(length(t1)+t0/(T/N))),Xzmp3*ones(1,(length(t3)+2*t0/(T/N))),Xzmp3*ones(1,(length(t3)+t0/(T/N)))+S],'r','Linewidth',2)
+% axis([0,3/2*T,-S/2,5/2*S])
+% set(gca,'Xtick',[0,1/2*T,T,3/2*T],'Ytick',[0,S,2*S])
+% set(gca,'XtickLabel',{'0';'1/2*T';'T';'3/2*T'})
+% set(gca,'YtickLabel',{'0';'S';'2*S'})
+% xlabel('\fontname{arial}\fontsize{14}t')
+% ylabel('\fontname{arial}\fontsize{14}Xzmp')
+% grid on
+
+% Xzmp不加双支撑曲线2(另加半周期)
+% plot(T/N:T/N:3/2*T,[Xzmp1*ones(1,(length(t1)+2*t0/(T/N))),Xzmp3*ones(1,(length(t3)+2*t0/(T/N))),Xzmp3*ones(1,(length(t3)+2*t0/(T/N)))+S],'r','Linewidth',2.5)
+% axis([0,3/2*T,-S/2,5/2*S])
+% set(gca,'Xtick',[0,1/2*T,T,3/2*T],'Ytick',[0,S,2*S])
+% set(gca,'XtickLabel',{'0';'1/2*T';'T';'3/2*T'})
+% set(gca,'YtickLabel',{'0';'S';'2*S'})
+% xlabel('\fontname{arial}\fontsize{14}t')
+% ylabel('\fontname{arial}\fontsize{14}Xzmp')
+% grid on
+
+
+% Xzmp加双支撑曲线(另加半周期)
+% plot([t1,t2,t3,t2+T/2,t3+T/2],[Xzmp,Xzmp2+S,Xzmp3*ones(1,length(t3))+S],'r','Linewidth',2.5)
+% % hold on
+% % plot([t1,t2,t3,t2+T/2,t3+T/2],[Velo_Xm,Velo_Xm(1+(T1-t0)/(T/N):end)],'--b','Linewidth',2)
+% % hold off
+% axis([0,3/2*T,-S/2,5/2*S])
+% set(gca,'Xtick',[0,1/2*T,T,3/2*T],'Ytick',[0,S,2*S])
+% set(gca,'XtickLabel',{'0';'1/2*T';'T';'3/2*T'})
+% set(gca,'YtickLabel',{'0';'S';'2*S'})
+% xlabel('\fontname{arial}\fontsize{14}t')
+% ylabel('\fontname{arial}\fontsize{14}Xzmp')
+% grid on
+
+% Xm与Xzmp
+% plot(t,Xm,'-r')
+% hold on
+% plot(t,Xzmp,'-.r')
+% legend('Xm','Xzmp')
+
+%Xm速度曲线1
+% plot([t1,t2,t3,t2+T/2,t3+T/2],[Velo_Xm,Velo_Xm(1+(T1-t0)/(T/N):end)],'r','Linewidth',2)
+% axis([0,3/2*T,0.5,0.75])
+% set(gca,'Xtick',[0,1/2*T,T,3/2*T])
+% set(gca,'XtickLabel',{'0';'1/2*T';'T';'3/2*T'})
+% xlabel('\fontname{arial}\fontsize{12}t')
+% ylabel('\fontname{arial}\fontsize{12}Vm(m/s)')
+% grid on
+
+%Xm速度曲线2
+% plot([t1,t2,t3,t2+T/2,t3+T/2],[Velo_Xm,Velo_Xm(1+(T1-t0)/(T/N):end)],'r','Linewidth',2)
+% axis([0,3/2*T,0.5,0.75])
+% set(gca,'Xtick',[0,1/2*T,T,3/2*T])
+% set(gca,'XtickLabel',{'0';'1/2*T';'T';'3/2*T'})
+% ylabel('\fontname{arial}\fontsize{14}Vm(m/s)')
+% grid on

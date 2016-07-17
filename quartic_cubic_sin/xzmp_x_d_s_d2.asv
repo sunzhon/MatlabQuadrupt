@@ -1,0 +1,118 @@
+clear all;clc
+g=9.8;h=0.86;H=0.08;D=0.6;
+T=1;alpha=0.1;N=500;T11=T*(1/2-alpha);T12=T-T11; 
+T0=T11/10;T1=T11-2*T0; % 摆动相的时间：三次曲线T0(0.0T-0.04T)椭圆T1(0.04T-0.36T)三次曲线(0.36T-0.4T)
+T2=T*alpha; %双支撑相
+t11=T/N:T/N:T0;t12=T0+T/N:T/N:T1+T0;t13=T1+T0+T/N:T/N:T1+2*T0;t1=[t11,t12,t13];%t11、t12、t13 分别表示摆动相中 三次曲线(0.0T-0.04T)椭圆(0.04T-0.36T)三次曲线(0.36T-0.4T)过程。
+t21=T11+T/N:T/N:T11+T2;t22=T11+T2+T/N:T/N:2*T11+T2;t23=2*T11+T2+T/N:T/N:T;t2=[t21,t22,t23]; %t21、t22、t23 分别表示支撑相中 双支撑(0.4T-0.5T)单支撑(0.5T-0.9T)双支撑(0.9T-1.0T)过程。
+t=T/N:T/N:T;
+S=D/2;s1=0.0691;s2=0.1155;S1=S+s1;
+xzmp0=0;xzmp01=xzmp0+S;
+Zm0=0;Xm0=0;Xd=-S1/20;Zd=H/5;
+% Xzmp轨迹规划
+A=[ 1,   0,          0,             0         ;    
+    1,   T2,       T2^2,            T2^3      ;          
+    0,   1,          0,             0         ;
+    0,   1,          2*T2,          3*T2^2   ];
+C=[xzmp0 xzmp01 0 0]';
+B=inv(A)*C;
+a0=round(10*B(1))/10;
+a1=round(10*B(2))/10;
+a2=round(10*B(3))/10;
+a3=round(10*B(4))/10;
+
+xzmp1=xzmp0;
+xzmp2=a0+a1*(t21-T11)+a2*(t21-T11).^2+a3*(t21-T11).^3;
+xzmp3=xzmp1;
+
+c=g/h;
+C1=0.0404;
+C2=-0.1559;
+C3=39.0510;
+C4=-54.7314;
+
+%双支撑-单支撑-双支撑
+Pxm21=xzmp0-s2+C3*exp((c)^(1/2)*(t21-T11))+C4*exp(-(c)^(1/2)*(t21-T11))+a3*(t21-T11).^3+a2*(t21-T11).^2+(6*a3*(t21-T11))/c+2*a2/c;
+Pxm22=xzmp0+s2+s1+C1*exp((c)^(1/2)*(t22-T11-T2))+C2*exp(-(c)^(1/2)*(t22-T11-T2));
+Pxm23=xzmp01-s2+C3*exp((c)^(1/2)*(t23-2*T11-T2))+C4*exp(-(c)^(1/2)*(t23-2*T11-T2))+a3*(t23-2*T11-T2).^3+a2*(t23-2*T11-T2).^2+(6*a3*(t23-2*T11-T2))/c+2*a2/c;
+Pxm2=[Pxm21,Pxm22,Pxm23];
+pp_Pxm2=spline(t2,Pxm2);
+dpp_Pxm2=fnder(pp_Pxm2);
+
+Xm1=S1-Pxm21;
+Xm2=S1-Pxm22;
+Xm3=S1-Pxm23;
+
+% 样条函数可视化
+% fnplt(pp_Pxm2,'b-')
+% hold on
+% fnplt(dpp_Pxm2,'m:')
+
+% X2m三段曲线,支撑相
+plot(t21,Pxm21,'r','LineWidth',2)
+hold on
+plot(t22,Pxm22,'b','LineWidth',2)
+hold on
+plot(t23,Pxm23,'.r','LineWidth',2)
+
+% 摆动相轨迹
+a=S1/2-Xd;b=H-Zd;
+xm42=-a*cos(pi/(4/5*T11)*(t12-T0))+S1/2;
+zm42=b*sin(pi/(4/5*T11)*(t12-T0))+Zd;
+O=[      0,         0,        0,         0,         0,        S1,      2*S1*T0,      3*S1*T0^2;
+         0,         H,   2*H*T0,  3*H*T0^2,         0,        0,            0,              0;
+         0,         0,        0,         0,         S1,    S1*T0,      S1*T0^2,        S1*T0^3;
+         H,      H*T0,   H*T0^2,    H*T0^3,         0,        0,            0,              0;
+         0,         0,        0,         0,         S1,        0,            0,              0;
+         H,         0,        0,         0,         0,        0,            0,              0;
+         0,         0,        0,         0,         0,        S1,            0,              0;
+         0,         H,        0,         0,         0,        0,            0,              0];
+P=[0,b,Xd,Zd,0,0,-fnval(dpp_Pxm2,0.4),0]';
+Q=inv(O)*P;
+b10=Q(1);
+b11=Q(2);
+b12=Q(3);
+b13=Q(4);
+b20=Q(5);
+b21=Q(6);
+b22=Q(7);
+b23=Q(8);
+xm41=Xm0+S1*(b20+b21*t11+b22*t11.^2+b23*t11.^3);
+zm41=Zm0+H*(b10+b11*t11+b12*t11.^2+b13*t11.^3);
+xm43=Xm0+S1-(S1*(b20+b21*(T11-t13)+b22*(T11-t13).^2+b23*(T11-t13).^3));
+zm43=Zm0+H*(b10+b11*(T11-t13)+b12*(T11-t13).^2+b13*(T11-t13).^3);
+xm4=[xm41,xm42,xm43];zm4=[zm41,zm42,zm43];
+Xm=[xm4,Xm1,Xm2,Xm3];Zm=[zm4,Zm0*ones(1,length(t2))];
+
+pp_Xm=spline(t,Xm);
+dpp_Xm=fnder(pp_Xm);
+pp_Zm=spline(t,Zm);
+dpp_Zm=fnder(pp_Zm);
+
+% 样条函数可视化
+% fnplt(pp_Xm,'b-')
+% hold on
+% fnplt(dpp_Xm,'m:')
+% fnplt(pp_Zm,'r-')
+% fnplt(dpp_Zm,'r:')
+% hold off 
+% legend('Xm','X''_m','Zm','Z''_m')
+
+% 合轨迹水平、竖直方向轨迹
+% plot(t,Xm,'r','LineWidth',2)
+% hold on
+% plot(t,Zm,'b','LineWidth',2)
+% hold off
+
+% 合轨迹
+% plot(Xm,Zm,'--r','LineWidth',2)
+% axis equal
+
+% 摆动相水平、竖直方向轨迹
+% plot(t1,zm4,'r','LineWidth',2)
+% hold on
+% plot(t1,xm4,'b','LineWidth',2)
+
+% 摆动相轨迹
+% plot(xm4,zm4,'-r','LineWidth',2)
+% axis equal
