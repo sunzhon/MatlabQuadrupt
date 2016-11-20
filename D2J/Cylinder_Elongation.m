@@ -4,18 +4,18 @@ function [L1,Lfg,Leh]=Cylinder_Elongation(theta1,theta2,theta3)
 %theta取值范围
 %% 已下参数的含义参考李志论文第18页，以下注释的变量没有使用。
     
-    Laf=97;
+    Laf=.097;
     %Lab=357;
     %Lae=154;
-    Lbe=260;
-    Lbh=110;
+    Lbe=.260;
+    Lbh=.110;
     %Lfm=37;
     %Lbc=540;
     %Lnh=30;
-    Lag=220;
+    Lag=.220;
     %Lbg=137;
-    L1ao=100;
-    L1oc=286;
+    L1ao=.100;
+    L1oc=.286;
     
     gamma1=22.35/180*pi;
     gamma2=2.16/180*pi;
@@ -29,12 +29,15 @@ function [L1,Lfg,Leh]=Cylinder_Elongation(theta1,theta2,theta3)
     temp2=sqrt(Laf^2+Lag^2-cos(alpha)*(2*Laf*Lag));
     temp3=sqrt(Lbe^2+Lbh^2-cos(beta)*(2*Lbe*Lbh));
     
-    if (max(temp1)<=300)&&(min(temp1)>=235)&&(min(temp2)>=180)&&(max(temp2)<=255)&&(min(temp3)>=198)&&(max(temp3)<=330)
+    if (max(temp1)<=.300)&&(min(temp1)>=.235)&&(min(temp2)>=.180)&&(max(temp2)<=.255)&&(min(temp3)>=.198)&&(max(temp3)<=.330)
         L1=temp1;
         Lfg=temp2;
         Leh=temp3;
     else
-       error('input parameter error');
+       warning('beyong the defines of driven space');
+        L1=temp1;
+        Lfg=temp2;
+        Leh=temp3;
     end
 end
     

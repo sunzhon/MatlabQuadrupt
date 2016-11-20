@@ -15,27 +15,11 @@ t12=Ty/2:step:Ty-step;%0.5-1
 t2=Ty:step:T-step;%1-2
 
 
-switch leg
-    case 1      %«∞”“Õ»
-        Px0=523;
-        Pz0=-1136;
-        Py0=-220;
-        
-    case 2      %«∞◊ÛÕ»
-        Px0=523;
-        Pz0=-1136;
-        Py0=220;
-        
-    case 3      %∫Û”“Õ»
-        Px0=-523;
-        Pz0=-1136;
-        Py0=220;
-        
-    case 4      %∫Û◊ÛÕ»
-        Px0=-523;
-        Pz0=-1136;
-        Py0=-220;
-end
+%% zuduan chushi weizhi 
+[Px0,Py0,Pz0]=foot_initial(leg);
+
+%% guiji 
+
         Px1=S*(t1/Ty-1/2/pi*sin(2*pi.*t1/Ty))+Px0-S/2;
         Px2=Px0+S/2-S*((t2-Ty)/(T-Ty)-1/2/pi*sin(2*pi*(t2-Ty)/(T-Ty)));
         Py=Py0+zeros(count,1);
@@ -50,75 +34,140 @@ end
 switch leg
     case 1
        Px=[Px2(0.5*count+1:dutyfactor*count,1);Px1;Px2(1:0.5*count,1)];
-        Pz=[Pz2(0.5*count+1:dutyfactor*count,1);Pz1;Pz2(1:0.5*count,1)];
-       figure('Name','trot cycloid trajectory','NumberTitle','on');
+       Pz=[Pz2(0.5*count+1:dutyfactor*count,1);Pz1;Pz2(1:0.5*count,1)];
+       figure('Name','trot cycloid trajectory','NumberTitle','off');
        
-        subplot(4,4,1);
+         subplot(4,7,1+(leg-1)*7);
         plot(Px,Pz);
         title('QY-Px-Pz');
-        subplot(4,4,2);
+        grid on;
+        subplot(4,7,2+(leg-1)*7);
         plot(Px);
         title('QY-Px');
-        subplot(4,4,3);
+        grid on;
+        subplot(4,7,3+(leg-1)*7);
         plot(Pz);
         title('QY-Pz');
-        subplot(4,4,4);
+        grid on;
+        subplot(4,7,4+(leg-1)*7);
         plot(Py);
         title('QY-Py');
+        grid on;
+         subplot(4,7,5+(leg-1)*7);
+        plot(linspace(0,T,count-1),diff(Px)/step);
+        title('QY-PxV');
+        grid on;
+        subplot(4,7,6+(leg-1)*7);
+        plot(linspace(0,T,count-1),diff(Pz)/step);
+        title('QY-PzV');
+        grid on;
+        subplot(4,7,7+(leg-1)*7);
+        plot(linspace(0,T,count-1),diff(Py)/step);
+        title('QY-PyV');
+        grid on;
       case 2
         
         Px=[Px2;Px1];
         Pz=[Pz2;Pz1];
         
-        subplot(4,4,5);
+           
+      subplot(4,7,1+(leg-1)*7);
         plot(Px,Pz);
         title('QZ-Px-Pz');
-        subplot(4,4,6);
+         grid on;
+        subplot(4,7,2+(leg-1)*7);
         plot(Px);
-        title('QZ-Px');
-        subplot(4,4,7);
+        title('QY-Px');
+        grid on;
+        subplot(4,7,3+(leg-1)*7);
         plot(Pz);
-        title('QZ-Pz');
-        subplot(4,4,8);
+        title('QY-Pz');
+        grid on;
+        subplot(4,7,4+(leg-1)*7);
         plot(Py);
-        title('QZ-Py');
+        title('QY-Py');
+        grid on;
+         subplot(4,7,5+(leg-1)*7);
+        plot(linspace(0,T,count-1),diff(Px)/step);
+        title('QY-PxV');
+        grid on;
+        subplot(4,7,6+(leg-1)*7);
+        plot(linspace(0,T,count-1),diff(Pz)/step);
+        title('QY-PzV');
+        grid on;
+        subplot(4,7,7+(leg-1)*7);
+        plot(linspace(0,T,count-1),diff(Py)/step);
+        title('QY-PyV');
+        grid on;
 
     case 3
         
         Px=[Px2;Px1];
         Pz=[Pz2;Pz1];
         
-        subplot(4,4,9);
+           subplot(4,7,1+(leg-1)*7);
         plot(Px,Pz);
         title('HY-Px-Pz');
-        subplot(4,4,10);
+        grid on;
+        subplot(4,7,2+(leg-1)*7);
         plot(Px);
-        title('HY-Px');
-        subplot(4,4,11);
+        title('QY-Px');
+        grid on;
+        subplot(4,7,3+(leg-1)*7);
         plot(Pz);
-        title('HY-Pz');
-        subplot(4,4,12);
+        title('QY-Pz');
+        grid on;
+        subplot(4,7,4+(leg-1)*7);
         plot(Py);
-        title('HY-Py')
+        title('QY-Py');
+        grid on;
+         subplot(4,7,5+(leg-1)*7);
+        plot(linspace(0,T,count-1),diff(Px)/step);
+        title('QY-PxV');
+        grid on;
+        subplot(4,7,6+(leg-1)*7);
+        plot(linspace(0,T,count-1),diff(Pz)/step);
+        title('QY-PzV');
+        grid on;
+        subplot(4,7,7+(leg-1)*7);
+        plot(linspace(0,T,count-1),diff(Py)/step);
+        title('QY-PyV');
+        grid on;
    
     case 4
 
        Px=[Px2(0.5*count+1:dutyfactor*count,1);Px1;Px2(1:0.5*count,1)];
         Pz=[Pz2(0.5*count+1:dutyfactor*count,1);Pz1;Pz2(1:0.5*count,1)];
      
-        
-        subplot(4,4,13);
+         subplot(4,7,1+(leg-1)*7);
         plot(Px,Pz);
         title('HZ-Px-Pz');
-        subplot(4,4,14);
+         grid on;
+        subplot(4,7,2+(leg-1)*7);
         plot(Px);
-        title('HZ-Px');
-        subplot(4,4,15);
+        title('QY-Px');
+        grid on;
+        subplot(4,7,3+(leg-1)*7);
         plot(Pz);
-        title('HZ-Pz');
-        subplot(4,4,16);
+        title('QY-Pz');
+        grid on;
+        subplot(4,7,4+(leg-1)*7);
         plot(Py);
-        title('HZ-Py');
+        title('QY-Py');
+        grid on;
+         subplot(4,7,5+(leg-1)*7);
+        plot(linspace(0,T,count-1),diff(Px)/step);
+        title('QY-PxV');
+        grid on;
+        subplot(4,7,6+(leg-1)*7);
+        plot(linspace(0,T,count-1),diff(Pz)/step);
+        title('QY-PzV');
+        grid on;
+        subplot(4,7,7+(leg-1)*7);
+        plot(linspace(0,T,count-1),diff(Py)/step);
+        title('QY-PyV');
+        grid on;
+
 end
 
      

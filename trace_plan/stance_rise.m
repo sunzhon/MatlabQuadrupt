@@ -6,12 +6,13 @@ T=2;
 step=T/count;
 t=0:step:T-step;
 t=t';
+    [Px0,Py0,Pz0]=foot_initial(LEG);
 
 switch LEG
     case 1
-        Px=500+zeros(count,1);
-        Py=-200+zeros(count,1);
-        Pz=-1140+40*sin(2*pi/T*t-pi/2);
+        Px=Px0+zeros(count,1);
+        Py=Py0+zeros(count,1);
+        Pz=Pz0+0.040*sin(2*pi/T*t-pi/2);
           figure('Name','stance rise  trajectory','NumberTitle','on');
         
         subplot(4,4,1);
@@ -20,18 +21,21 @@ switch LEG
         subplot(4,4,2);
         plot(Px);
         title('QY-Px');
+        axis([1 100 -2 2]);
         subplot(4,4,3);
         plot(Pz);
         title('QY-Pz');
+        axis([1 100 -2 2]);
         subplot(4,4,4);
         plot(Py);
         title('QY-Py');
+        axis([1 100 -2 2]);
       
     case 2
         
-        Px=500+zeros(count,1);
-        Py=200+zeros(count,1);
-        Pz=-1140+40*sin(2*pi/T*t-pi/2);
+        Px=Px0+zeros(count,1);
+        Py=Py0+zeros(count,1);
+        Pz=Pz0+0.040*sin(2*pi/T*t-pi/2);
         
         
         subplot(4,4,5);
@@ -40,19 +44,22 @@ switch LEG
         subplot(4,4,6);
         plot(Px);
         title('QZ-Px');
+        axis([1 100 -2 2]);
         subplot(4,4,7);
         plot(Pz);
         title('QZ-Pz');
+        axis([1 100 -2 2]);
         subplot(4,4,8);
         plot(Py);
         title('QZ-Py');
+        axis([1 100 -2 2]);
 
         
     case 3
         
-        Px=-500+zeros(count,1);
-        Py=-200+zeros(count,1);
-        Pz=-1140+40*sin(2*pi/T*t-pi/2);
+        Px=Px0+zeros(count,1);
+        Py=Py0+zeros(count,1);
+        Pz=Pz0+0.040*sin(2*pi/T*t-pi/2);
         
         subplot(4,4,9);
         plot(Px,Pz);
@@ -60,19 +67,22 @@ switch LEG
         subplot(4,4,10);
         plot(Px);
         title('HY-Px');
+        axis([1 100 -2 2]);
         subplot(4,4,11);
         plot(Pz);
         title('HY-Pz');
+        axis([1 100 -2 2]);
         subplot(4,4,12);
         plot(Py);
         title('HY-Py')
+        axis([1 100 -2 2]);
 
         
     case 4
         
-        Px=-500+zeros(count,1);
-        Py=200+zeros(count,1);
-        Pz=-1140+40*sin(2*pi/T*t-pi/2);
+        Px=Px0+zeros(count,1);
+        Py=Py0+zeros(count,1);
+        Pz=Pz0+.040*sin(2*pi/T*t-pi/2);
         
         
         subplot(4,4,13);
@@ -81,12 +91,15 @@ switch LEG
         subplot(4,4,14);
         plot(Px);
         title('HZ-Px');
+        axis([1 100 -2 2]);
         subplot(4,4,15);
         plot(Pz);
         title('HZ-Pz');
+        axis([1 100 -2 2]);
         subplot(4,4,16);
         plot(Py);
         title('HZ-Py');
+        axis([1 100 -2 2]);
         
  
         

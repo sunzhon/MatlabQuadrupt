@@ -1,5 +1,6 @@
 
 function [Px,Py,Pz]=trot_bio_trajectory(Leg,count,High,Step_length,gait_cycle)
+
 % 下等运动
 %机器人初始位置
 T=gait_cycle;

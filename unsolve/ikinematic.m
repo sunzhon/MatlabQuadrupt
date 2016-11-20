@@ -8,14 +8,13 @@ function [theta1,theta2,theta3] = ikinematic(leg,Px,Py,Pz)
 % A,B 是逆解的中间变量
 % model_type=0,this means phisical,=1,this is virtual robot
      
-        b=990/2;
-        w=440/2;
-        h=285;%%%%机身体高度，此参数不准
-        L2=360;
-        L3=580;
-        a=20;
-        c=70;
-
+        b=.990/2;%单位 m
+        w=.440/2;
+        h=.285;%%%%机身体高度，此参数不准
+        L2=.360;
+        L3=.580;
+        a=.020;
+        c=.070;
 
 switch leg
     case 1
